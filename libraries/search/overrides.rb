@@ -95,7 +95,6 @@ module Search
         else
           raise "Only .json and .rb are supported!"
         end
-
       end
       return _result
     end
