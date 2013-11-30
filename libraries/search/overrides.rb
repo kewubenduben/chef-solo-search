@@ -76,9 +76,18 @@ module Search
 
     def search_roles(_query, start, rows, &block)
       _result = []
-      Dir.glob(File.join(Chef::Config[:role_path], "*.json")).map do |f|
-        # parse and hashify the role
-        role = Chef::JSONCompat.from_json(IO.read(f))
+      Dir.glob(File.join(Chef::Config[:role_path], "*.{json,rb}")).map do |f|
+		if f.end_with?(".json")
+	      role = Chef::JSONCompat.from_json(IO.read(f))
+		elsif f.end_with?(".rb")
+		  begin
+            role = Chef::Role.new.tap { |r| r.from_file(f) }
+		  rescue
+          end
+        else
+          raise "Only .json and .rb are supported!"
+        end
+	    # parse and hashify the role
         if _query.match(role.to_hash)
           _result << role
         end
